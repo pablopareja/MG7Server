@@ -35,6 +35,8 @@ public class GetSamplesServlet extends BasicServletNeo4j{
         
         Response response = new Response();
         
+        System.out.println(rqst.getMethod());
+        
         if(rqst.getMethod().equals(RequestList.GET_SAMPLES_REQUEST)){
             
             XMLElement samplesElement = new XMLElement(new Element("samples"));

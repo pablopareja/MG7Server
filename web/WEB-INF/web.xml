@@ -13,11 +13,31 @@
     </servlet>
     <servlet>
         <servlet-name>GetWholeTaxonomyTreeForSample</servlet-name>
-        <servlet-class>com.era7.bioinfo.metagenomics.server.servlet.GetWholeTaxonomyTreeForSample</servlet-class>
+        <servlet-class>com.era7.bioinfo.metagenomics.server.servlet.GetWholeTaxonomyTreeForSampleServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>GetSampleReadResultsForTaxon</servlet-name>
+        <servlet-class>com.era7.bioinfo.metagenomics.server.servlet.GetSampleReadResultsForTaxonServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>GetSampleTaxonomyResultsTable</servlet-name>
+        <servlet-class>com.era7.bioinfo.metagenomics.server.servlet.GetSampleTaxonomyResultsTableServlet</servlet-class>
+    </servlet>    
+    <servlet>
+        <servlet-name>GetReadResult</servlet-name>
+        <servlet-class>com.era7.bioinfo.metagenomics.server.servlet.GetReadResultServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DownloadSampleReadResultsForTaxon</servlet-name>
+        <servlet-class>com.era7.bioinfo.metagenomics.server.servlet.DownloadSampleReadResultsForTaxonServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>GetSamples</servlet-name>
         <url-pattern>/GetSamples</url-pattern>
+    </servlet-mapping> 
+    <servlet-mapping>
+        <servlet-name>GetSampleTaxonomyResultsTable</servlet-name>
+        <url-pattern>/GetSampleTaxonomyResultsTable</url-pattern>
     </servlet-mapping> 
     <servlet-mapping>
         <servlet-name>GetTaxonomyTree</servlet-name>
@@ -27,6 +47,18 @@
         <servlet-name>GetWholeTaxonomyTreeForSample</servlet-name>
         <url-pattern>/GetWholeTaxonomyTreeForSample</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>GetSampleReadResultsForTaxon</servlet-name>
+        <url-pattern>/GetSampleReadResultsForTaxon</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>GetReadResult</servlet-name>
+        <url-pattern>/GetReadResult</url-pattern>
+    </servlet-mapping> 
+    <servlet-mapping>
+        <servlet-name>DownloadSampleReadResultsForTaxon</servlet-name>
+        <url-pattern>/DownloadSampleReadResultsForTaxon</url-pattern>
+    </servlet-mapping> 
     <session-config>
         <session-timeout>
             30

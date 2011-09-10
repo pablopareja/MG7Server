@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.neo4j.graphdb.Direction;
@@ -48,6 +47,8 @@ public class GetWholeTaxonomyTreeForSampleServlet extends BasicServletNeo4j {
 
         if (rqst.getMethod().equals(RequestList.GET_WHOLE_TAXONOMY_TREE_FOR_SAMPLE_REQUEST)) {
 
+            System.out.println(rqst.getMethod());
+
             SampleXML sampleXML = new SampleXML(rqst.getParameters().getChild(SampleXML.TAG_NAME));
 
             MetagenomicsManager manager = new MetagenomicsManager(CommonData.DB_FOLDER);
@@ -60,6 +61,7 @@ public class GetWholeTaxonomyTreeForSampleServlet extends BasicServletNeo4j {
             System.out.println("getting taxon frequencies relationships...");
             Iterator<Relationship> relIterator = sampleNode.getNode().getRelationships(new TaxonFrequencyResultsRel(null), Direction.INCOMING).iterator();
 
+            
             while (relIterator.hasNext()) {
 
                 TaxonFrequencyResultsRel taxonFreqRel = new TaxonFrequencyResultsRel(relIterator.next());
@@ -72,7 +74,9 @@ public class GetWholeTaxonomyTreeForSampleServlet extends BasicServletNeo4j {
                         "" + taxonFreqRel.getAbsoluteValue(),
                         "" + taxonFreqRel.getAccumulatedAbsoluteValue());
 
-                currentNodeXML.setId(currentNode.getTaxId());
+                //currentNodeXML.setId(currentNode.getTaxId());
+                
+                System.out.println("Tree: " + currentNode.getScientificName());
 
                 taxonMap.put(currentNode.getTaxId(), currentNodeXML);
 
@@ -83,6 +87,15 @@ public class GetWholeTaxonomyTreeForSampleServlet extends BasicServletNeo4j {
             GraphXML graph = new GraphXML();
             graph.setDefaultEdgeType(GraphXML.DIRECTED_EDGE_TYPE);
             graph.setId("Taxonomy graph");
+            
+            //-----first we create and add the root node (so that it gets in first place)---
+            NCBITaxonNode rootNode = nodeRetriever.getNCBITaxonByTaxId("1");
+            NodeXML rootNodeXML = createNodeXML(rootNode.getScientificName(),
+                        rootNode.getTaxId(),
+                        "-1",
+                        "-1");
+            graph.addNode(rootNodeXML);
+            //--------------------------------------------
 
             graphmlXML.addGraph(graph);
 
@@ -108,13 +121,14 @@ public class GetWholeTaxonomyTreeForSampleServlet extends BasicServletNeo4j {
 
     }
 
+   
     private void getAncestors(NCBITaxonNode currentNode,
             GraphXML graph,
             HashMap<String, NodeXML> taxonMap,
             HashSet<String> nodesIncludedInGraph) {
 
         String currentNodeTaxId = currentNode.getTaxId();
-        
+
         if (!nodesIncludedInGraph.contains(currentNodeTaxId)) {
 
             NodeXML nodeXML = taxonMap.get(currentNodeTaxId);
@@ -123,23 +137,24 @@ public class GetWholeTaxonomyTreeForSampleServlet extends BasicServletNeo4j {
                         currentNodeTaxId,
                         "-1",
                         "-1");
-            } else {
-                graph.addNode(nodeXML);
-            }
-            
+            }           
+
             nodesIncludedInGraph.add(currentNodeTaxId);
 
             NCBITaxonNode parentNode = currentNode.getParent();
-            
-            if(parentNode != null){
-                
+
+            if (parentNode != null) {
+
                 EdgeXML edgeXML = new EdgeXML();
                 edgeXML.setId("" + EDGE_COUNTER++);
                 edgeXML.setSource(parentNode.getTaxId());
                 edgeXML.setTarget(currentNodeTaxId);
                 graph.addEdge(edgeXML);
                 
+                graph.addNode(nodeXML);
+
                 getAncestors(parentNode, graph, taxonMap, nodesIncludedInGraph);
+                
             }
 
         }
@@ -208,6 +223,8 @@ public class GetWholeTaxonomyTreeForSampleServlet extends BasicServletNeo4j {
         nodeXML.addData(taxIdData);
         nodeXML.addData(absoluteValueData);
         nodeXML.addData(accumulatedAbsoluteValueData);
+        
+        nodeXML.setId(taxId);
 
         return nodeXML;
     }
