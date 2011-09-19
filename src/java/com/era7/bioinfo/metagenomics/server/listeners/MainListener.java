@@ -8,6 +8,8 @@ import com.era7.bioinfo.servletlibraryneo4j.listeners.ApplicationListener;
 import com.era7.bioinfo.bio4jmodel.util.Bio4jManager;
 import com.era7.bioinfo.metagenomics.server.CommonData;
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletContext;
 import org.neo4j.graphdb.Node;
 
@@ -22,26 +24,36 @@ public class MainListener extends ApplicationListener {
 
         File file = new File(".");
         System.out.println(file.getAbsolutePath());
-        
-        System.out.println("Context initialized handler...");
-        Bio4jManager manager = new Bio4jManager(com.era7.bioinfo.metagenomics.server.CommonData.DB_FOLDER);
-        Node referenceNode = manager.getReferenceNode();
 
-        if(referenceNode == null){
-            System.out.println("reference node is null!!");
-        }else{
-            System.out.println("reference node id: " + referenceNode.getId());
+        System.out.println("Context initialized handler...");
+        Bio4jManager manager;
+        try {
+            manager = new Bio4jManager(CommonData.getMetagenomicaDataXML().getResultsDBFolder());
+            Node referenceNode = manager.getReferenceNode();
+
+            if (referenceNode == null) {
+                System.out.println("reference node is null!!");
+            } else {
+                System.out.println("reference node id: " + referenceNode.getId());
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(MainListener.class.getName()).log(Level.SEVERE, null, ex);
         }
+
 
         System.out.println("done!");
     }
 
     @Override
     protected void contextDestroyedHandler(ServletContext context) {
-        System.out.println("Shutting down Neo4j....");
-        Bio4jManager manager = new Bio4jManager(CommonData.DB_FOLDER);
-        //manager.deleteAll();
-        manager.shutDown();
-        System.out.println("Done with shutting down! :)");
+        try {
+            System.out.println("Shutting down Neo4j....");
+            Bio4jManager manager = new Bio4jManager(CommonData.getMetagenomicaDataXML().getResultsDBFolder());
+            //manager.deleteAll();
+            manager.shutDown();
+            System.out.println("Done with shutting down! :)");
+        } catch (Exception ex) {
+            Logger.getLogger(MainListener.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

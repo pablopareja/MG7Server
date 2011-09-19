@@ -21,6 +21,8 @@ import com.era7.lib.communication.xml.Request;
 import com.era7.lib.communication.xml.Response;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -30,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 public class GetTaxonomyTreeServlet extends BasicServletNeo4j {
 
     public static long EDGE_COUNTER = 0;
+    
 
     @Override
     protected Response processRequest(Request rqst, BasicSession bs, Bio4jManager mn, HttpServletRequest hsr) throws Throwable {
@@ -174,8 +177,14 @@ public class GetTaxonomyTreeServlet extends BasicServletNeo4j {
     }
 
     @Override
-    protected String defineNeo4jDatabaseFolder() {
-        return CommonData.DB_FOLDER;
+    protected String defineNeo4jDatabaseFolder() {  
+        String dbFolder = "";
+        try {
+            dbFolder = CommonData.getMetagenomicaDataXML().getResultsDBFolder();
+        } catch (Exception ex) {
+            Logger.getLogger(GetReadResultServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return dbFolder;   
     }
 
     @Override

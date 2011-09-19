@@ -27,7 +27,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Relationship;
@@ -51,7 +54,9 @@ public class GetWholeTaxonomyTreeForSampleServlet extends BasicServletNeo4j {
 
             SampleXML sampleXML = new SampleXML(rqst.getParameters().getChild(SampleXML.TAG_NAME));
 
-            MetagenomicsManager manager = new MetagenomicsManager(CommonData.DB_FOLDER);
+            //Map<String,String> configuration = EmbeddedGraphDatabase.loadConfigurations(CommonData.getMetagenomicaDataXML().getMLMConfigProps());
+            MetagenomicsManager manager = new MetagenomicsManager(CommonData.getMetagenomicaDataXML().getResultsDBFolder(),null);
+            
             NodeRetriever nodeRetriever = new NodeRetriever(mn);
 
             SampleNode sampleNode = new SampleNode(manager.getSampleNameIndex().get(SampleNode.SAMPLE_NAME_INDEX, sampleXML.getSampleName()).getSingle());
@@ -76,7 +81,7 @@ public class GetWholeTaxonomyTreeForSampleServlet extends BasicServletNeo4j {
 
                 //currentNodeXML.setId(currentNode.getTaxId());
                 
-                System.out.println("Tree: " + currentNode.getScientificName());
+                //System.out.println("Tree: " + currentNode.getScientificName());
 
                 taxonMap.put(currentNode.getTaxId(), currentNodeXML);
 
@@ -276,8 +281,14 @@ public class GetWholeTaxonomyTreeForSampleServlet extends BasicServletNeo4j {
     }
 
     @Override
-    protected String defineNeo4jDatabaseFolder() {
-        return CommonData.DB_FOLDER;
+    protected String defineNeo4jDatabaseFolder() {  
+        String dbFolder = "";
+        try {
+            dbFolder = CommonData.getMetagenomicaDataXML().getResultsDBFolder();
+        } catch (Exception ex) {
+            Logger.getLogger(GetReadResultServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return dbFolder;   
     }
 
     @Override

@@ -15,9 +15,10 @@ import com.era7.lib.communication.model.BasicSession;
 import com.era7.lib.communication.xml.Request;
 import com.era7.lib.communication.xml.Response;
 import com.era7.lib.era7xmlapi.model.XMLElement;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import org.jdom.Element;
 import org.neo4j.graphdb.Direction;
@@ -83,7 +84,15 @@ public class GetSamplesServlet extends BasicServletNeo4j{
     @Override
     protected boolean defineUtf8CharacterEncodingRequest() {    return false;   }
     @Override
-    protected String defineNeo4jDatabaseFolder() {  return CommonData.DB_FOLDER;   }
+    protected String defineNeo4jDatabaseFolder() {  
+        String dbFolder = "";
+        try {
+            dbFolder = CommonData.getMetagenomicaDataXML().getResultsDBFolder();
+        } catch (Exception ex) {
+            Logger.getLogger(GetSamplesServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return dbFolder;   
+    }
     @Override
     protected void initServlet() {}
     

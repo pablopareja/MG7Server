@@ -6,22 +6,21 @@ package com.era7.bioinfo.metagenomics.server.servlet;
 
 import com.era7.bioinfo.bio4jmodel.nodes.ncbi.NCBITaxonNode;
 import com.era7.bioinfo.bio4jmodel.util.Bio4jManager;
-import com.era7.bioinfo.bio4jmodel.util.NodeRetriever;
 import com.era7.bioinfo.metagenomics.MetagenomicsManager;
 import com.era7.bioinfo.metagenomics.nodes.SampleNode;
 import com.era7.bioinfo.metagenomics.relationships.TaxonFrequencyResultsRel;
 import com.era7.bioinfo.metagenomics.server.CommonData;
 import com.era7.bioinfo.metagenomics.server.RequestList;
 import com.era7.bioinfo.servletlibraryneo4j.servlet.BasicServletNeo4j;
-import com.era7.lib.bioinfoxml.graphml.NodeXML;
 import com.era7.lib.bioinfoxml.metagenomics.SampleXML;
 import com.era7.lib.bioinfoxml.ncbi.NCBITaxonomyNodeXML;
 import com.era7.lib.communication.model.BasicSession;
 import com.era7.lib.communication.xml.Request;
 import com.era7.lib.communication.xml.Response;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Relationship;
@@ -45,8 +44,8 @@ public class GetSampleTaxonomyResultsTableServlet extends BasicServletNeo4j {
 
             SampleXML sampleXML = new SampleXML(rqst.getParameters().getChild(SampleXML.TAG_NAME));
 
-            MetagenomicsManager manager = new MetagenomicsManager(CommonData.DB_FOLDER);
-
+            MetagenomicsManager manager = new MetagenomicsManager(CommonData.getMetagenomicaDataXML().getResultsDBFolder(),null);
+            
             SampleNode sampleNode = new SampleNode(manager.getSampleNameIndex().get(SampleNode.SAMPLE_NAME_INDEX, sampleXML.getSampleName()).getSingle());
             
             Iterator<Relationship> relIterator = sampleNode.getNode().getRelationships(new TaxonFrequencyResultsRel(null), Direction.INCOMING).iterator();
@@ -56,7 +55,7 @@ public class GetSampleTaxonomyResultsTableServlet extends BasicServletNeo4j {
                 TaxonFrequencyResultsRel taxonFreqRel = new TaxonFrequencyResultsRel(relIterator.next());
                 NCBITaxonNode currentNode = new NCBITaxonNode(taxonFreqRel.getRelationship().getStartNode());
                 
-                System.out.println("Table: " + currentNode.getScientificName());
+                //System.out.println("Table: " + currentNode.getScientificName());
 
                 //-----------creating ncbi taxon xml node------------------
                 NCBITaxonomyNodeXML nodeXML = new NCBITaxonomyNodeXML();
@@ -127,8 +126,14 @@ public class GetSampleTaxonomyResultsTableServlet extends BasicServletNeo4j {
     }
 
     @Override
-    protected String defineNeo4jDatabaseFolder() {
-        return CommonData.DB_FOLDER;
+    protected String defineNeo4jDatabaseFolder() {  
+        String dbFolder = "";
+        try {
+            dbFolder = CommonData.getMetagenomicaDataXML().getResultsDBFolder();
+        } catch (Exception ex) {
+            Logger.getLogger(GetReadResultServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return dbFolder;   
     }
 
     @Override

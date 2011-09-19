@@ -10,7 +10,7 @@ import com.era7.bioinfo.bio4jmodel.util.NodeRetriever;
 import com.era7.bioinfo.metagenomics.server.CommonData;
 import com.era7.bioinfo.metagenomics.server.RequestList;
 import com.era7.bioinfo.metagenomics.MetagenomicsManager;
-import com.era7.bioinfo.metagenomics.nodes.ReadResultsNode;
+import com.era7.bioinfo.metagenomics.nodes.ReadResultNode;
 import com.era7.bioinfo.metagenomics.nodes.SampleNode;
 import com.era7.bioinfo.metagenomics.relationships.ReadResultNcbiTaxonRel;
 import com.era7.bioinfo.metagenomics.relationships.ReadResultSampleRel;
@@ -23,6 +23,8 @@ import com.era7.lib.communication.xml.Request;
 import com.era7.lib.communication.xml.Response;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import org.jdom.Element;
 import org.neo4j.graphdb.Direction;
@@ -46,7 +48,8 @@ public class GetSampleReadResultsForTaxonServlet  extends BasicServletNeo4j{
         
         if(rqst.getMethod().equals(RequestList.GET_SAMPLE_READ_RESULTS_FOR_TAXON_REQUEST)){             
             
-            MetagenomicsManager manager = new MetagenomicsManager(CommonData.DB_FOLDER);
+            MetagenomicsManager manager = new MetagenomicsManager(CommonData.getMetagenomicaDataXML().getResultsDBFolder(),null);
+            
             NodeRetriever nodeRetriever = new NodeRetriever(mn);
             
             ReadResultSampleRel readResultSampleRel = new ReadResultSampleRel(null);
@@ -68,7 +71,7 @@ public class GetSampleReadResultsForTaxonServlet  extends BasicServletNeo4j{
                 
                 while(relIterator.hasNext() && readResultsCounter < MAX_READ_RESULTS){
                     
-                    ReadResultsNode readResultsNode = new ReadResultsNode(relIterator.next().getStartNode());
+                    ReadResultNode readResultsNode = new ReadResultNode(relIterator.next().getStartNode());
                     SampleNode tempSampleNode = new SampleNode(readResultsNode.getNode().getSingleRelationship(readResultSampleRel, Direction.OUTGOING).getEndNode());
                     
                     if(sampleNode.getName().equals(tempSampleNode.getName())){
@@ -128,7 +131,15 @@ public class GetSampleReadResultsForTaxonServlet  extends BasicServletNeo4j{
     @Override
     protected boolean defineUtf8CharacterEncodingRequest() {    return false;   }
     @Override
-    protected String defineNeo4jDatabaseFolder() {  return CommonData.DB_FOLDER;   }
+    protected String defineNeo4jDatabaseFolder() {  
+        String dbFolder = "";
+        try {
+            dbFolder = CommonData.getMetagenomicaDataXML().getResultsDBFolder();
+        } catch (Exception ex) {
+            Logger.getLogger(GetReadResultServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return dbFolder;   
+    }
     @Override
     protected void initServlet() {}
     

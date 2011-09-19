@@ -8,13 +8,15 @@ import com.era7.bioinfo.bio4jmodel.util.Bio4jManager;
 import com.era7.bioinfo.metagenomics.server.CommonData;
 import com.era7.bioinfo.metagenomics.server.RequestList;
 import com.era7.bioinfo.metagenomics.MetagenomicsManager;
-import com.era7.bioinfo.metagenomics.nodes.ReadResultsNode;
+import com.era7.bioinfo.metagenomics.nodes.ReadResultNode;
 import com.era7.bioinfo.servletlibraryneo4j.servlet.BasicServletNeo4j;
 import com.era7.lib.bioinfoxml.metagenomics.ReadResultXML;
 import com.era7.lib.communication.model.BasicSession;
 import com.era7.lib.communication.xml.Request;
 import com.era7.lib.communication.xml.Response;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -34,8 +36,9 @@ public class GetReadResultServlet extends BasicServletNeo4j {
             
             ReadResultXML readResultXML = new ReadResultXML(rqst.getParameters().getChild(ReadResultXML.TAG_NAME));
 
-            MetagenomicsManager manager = new MetagenomicsManager(CommonData.DB_FOLDER);
-            ReadResultsNode readResultsNode = new ReadResultsNode(manager.getReadResultReadIdIndex().get(ReadResultsNode.READ_RESULT_READ_ID_INDEX, readResultXML.getReadId()).getSingle());
+            MetagenomicsManager manager = new MetagenomicsManager(CommonData.getMetagenomicaDataXML().getResultsDBFolder(),null);
+            
+            ReadResultNode readResultsNode = new ReadResultNode(manager.getReadResultReadIdIndex().get(ReadResultNode.READ_RESULT_READ_ID_INDEX, readResultXML.getReadId()).getSingle());
 
             readResultXML.detach();
             
@@ -48,6 +51,7 @@ public class GetReadResultServlet extends BasicServletNeo4j {
             readResultXML.setAlignmentLength(readResultsNode.getAlignmentLength());
             readResultXML.setMidline(readResultsNode.getMidline());
             readResultXML.setQuerySequence(readResultsNode.getQuerySequence());
+            readResultXML.setHitSequence(readResultsNode.getHitSequence());
 
             response.addChild(readResultXML);
 
@@ -108,7 +112,13 @@ public class GetReadResultServlet extends BasicServletNeo4j {
 
     @Override
     protected String defineNeo4jDatabaseFolder() {
-        return CommonData.DB_FOLDER;
+        String dbFolder = "";
+        try {
+            dbFolder = CommonData.getMetagenomicaDataXML().getResultsDBFolder();
+        } catch (Exception ex) {
+            Logger.getLogger(GetReadResultServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return dbFolder;
     }
 
     @Override
