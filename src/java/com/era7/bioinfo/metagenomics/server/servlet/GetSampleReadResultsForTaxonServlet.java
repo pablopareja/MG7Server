@@ -37,7 +37,7 @@ import org.neo4j.graphdb.Relationship;
  */
 public class GetSampleReadResultsForTaxonServlet  extends BasicServletNeo4j{
     
-    public static final int MAX_READ_RESULTS = 10000;
+    public static final int MAX_READ_RESULTS = 1000;
     
     @Override
     protected Response processRequest(Request rqst, BasicSession bs, Bio4jManager mn, HttpServletRequest hsr) throws Throwable {

@@ -83,7 +83,7 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
                 NCBITaxonomyNodeXML taxonXML = new NCBITaxonomyNodeXML(myReq.getParameters().getChild(NCBITaxonomyNodeXML.TAG_NAME));
 
                 //Map<String,String> configuration = EmbeddedGraphDatabase.loadConfigurations(CommonData.getMetagenomicaDataXML().getMLMConfigProps());
-                MetagenomicsManager manager = new MetagenomicsManager(CommonData.getMetagenomicaDataXML().getResultsDBFolder(),null);
+                MetagenomicsManager manager = new MetagenomicsManager(CommonData.getMetagenomicaDataXML().getResultsDBFolder(), null);
                 NodeRetriever nodeRetriever = new NodeRetriever(manager);
 
                 StringBuilder stBuilder = new StringBuilder();
@@ -111,6 +111,13 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
                             readResultXML.setReadId(readResultsNode.getReadId());
                             readResultXML.setIdentity(readResultsNode.getIdentity());
                             readResultXML.setQueryLength(readResultsNode.getQueryLength());
+                            readResultXML.setEvalue(readResultsNode.getEvalue());
+                            readResultXML.setGiId(readResultsNode.getGiId());
+                            readResultXML.setHitLength(readResultsNode.getHitLength());
+                            readResultXML.setAlignmentLength(readResultsNode.getAlignmentLength());
+                            readResultXML.setMidline(readResultsNode.getMidline());
+                            readResultXML.setQuerySequence(readResultsNode.getQuerySequence());
+                            readResultXML.setHitSequence(readResultsNode.getHitSequence());
 
                             stBuilder.append((readResultXML.toString() + "\n"));
 
@@ -142,7 +149,7 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
                 }
 
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
