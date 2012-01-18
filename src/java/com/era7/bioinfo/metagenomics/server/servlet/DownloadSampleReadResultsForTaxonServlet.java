@@ -21,14 +21,12 @@ import com.era7.lib.communication.xml.Response;
 import java.io.OutputStream;
 
 import java.util.Iterator;
-import java.util.Map;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.kernel.EmbeddedGraphDatabase;
 
 /**
  *
@@ -140,6 +138,12 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
                     response.setContentLength(byteArray.length);
 
                     System.out.println("doneee!!");
+                    
+                    System.out.println("end reached!");
+                    
+                    //out.flush();
+                    
+                    
 
                 } else {
                     Response resp = new Response();
@@ -153,9 +157,6 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
             e.printStackTrace();
         }
 
-        System.out.println("end reached!");
-
-        out.flush();
         out.close();
 
     }
