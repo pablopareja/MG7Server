@@ -181,7 +181,7 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
 
                 } else if (format.equals("multifasta")) {
 
-                    stBuilder.append((">" + readResultsNode.getReadId() + "\n" + FastaUtil.formatSequenceWithFastaFormat(readResultsNode.getHitSequence(), 60) + "\n"));
+                    stBuilder.append((">" + readResultsNode.getReadId() + "\n" + FastaUtil.formatSequenceWithFastaFormat(readResultsNode.getQuerySequence(), 70) + "\n"));
 
                 }
             }
