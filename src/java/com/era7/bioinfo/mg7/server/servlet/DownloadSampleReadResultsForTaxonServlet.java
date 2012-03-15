@@ -9,6 +9,7 @@ import com.era7.bioinfo.bio4jmodel.util.NodeRetriever;
 import com.era7.bioinfo.mg7.MG7Manager;
 import com.era7.bioinfo.mg7.nodes.ReadResultNode;
 import com.era7.bioinfo.mg7.nodes.SampleNode;
+import com.era7.bioinfo.mg7.relationships.ReadResultLCANcbiTaxonRel;
 import com.era7.bioinfo.mg7.relationships.ReadResultNcbiTaxonRel;
 import com.era7.bioinfo.mg7.relationships.ReadResultSampleRel;
 import com.era7.bioinfo.mg7.server.CommonData;
@@ -78,6 +79,7 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
 
                 String fileName = myReq.getParameters().getChildText("file_name");
                 String format = myReq.getParameters().getChildText("format");
+                String mode = myReq.getParameters().getChildText("mode");
                 Boolean includeDescendants = Boolean.parseBoolean(myReq.getParameters().getChildText("include_descendants"));
 
                 System.out.println(myReq.getMethod());
@@ -106,7 +108,7 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
 
                     NCBITaxonNode taxonNode = nodeRetriever.getNCBITaxonByTaxId("" + taxonXML.getTaxId());
 
-                    getReadsAndWriteThemToFile(taxonNode, format, stBuilder, includeDescendants, sampleNode, readResultSampleRel);
+                    getReadsAndWriteThemToFile(taxonNode, format, stBuilder, includeDescendants, sampleNode, readResultSampleRel, mode);
 
                     if (format.equals("xml")) {
                         stBuilder.append("</read_results>");
@@ -153,9 +155,16 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
             StringBuilder stBuilder,
             Boolean includeDescendants,
             SampleNode sampleNode,
-            ReadResultSampleRel readResultSampleRel) {
+            ReadResultSampleRel readResultSampleRel,
+            String mode) {
 
-        Iterator<Relationship> relIterator = taxonNode.getNode().getRelationships(new ReadResultNcbiTaxonRel(null), Direction.INCOMING).iterator();
+        Iterator<Relationship> relIterator = null;
+        
+        if(mode.equals("lca")){
+            relIterator = taxonNode.getNode().getRelationships(new ReadResultLCANcbiTaxonRel(null), Direction.INCOMING).iterator();
+        }else if(mode.equals("direct")){
+            relIterator = taxonNode.getNode().getRelationships(new ReadResultNcbiTaxonRel(null), Direction.INCOMING).iterator();
+        }         
 
         while (relIterator.hasNext()) {
 
@@ -165,6 +174,7 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
             if (sampleNode.getName().equals(tempSampleNode.getName())) {
 
                 if (format.equals("xml")) {
+                    
                     ReadResultXML readResultXML = new ReadResultXML();
                     readResultXML.setReadId(readResultsNode.getReadId());
                     readResultXML.setIdentity(readResultsNode.getIdentity());
@@ -181,7 +191,14 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
 
                 } else if (format.equals("multifasta")) {
 
-                    stBuilder.append((">" + readResultsNode.getReadId() + "\n" + FastaUtil.formatSequenceWithFastaFormat(readResultsNode.getQuerySequence(), 70) + "\n"));
+                    stBuilder.append((">" + sampleNode.getName() + "|" +
+                            readResultsNode.getReadId() + "|" +
+                            taxonNode.getTaxId() + "|" +
+                            readResultsNode.getQuerySequence().length() + "|" +
+                            
+                            "\n" + 
+                            FastaUtil.formatSequenceWithFastaFormat(readResultsNode.getQuerySequence(), 70) 
+                            + "\n"));
 
                 }
             }
@@ -190,7 +207,7 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
         
         if(includeDescendants){
             for (NCBITaxonNode child : taxonNode.getChildren()) {
-                getReadsAndWriteThemToFile(child, format, stBuilder, includeDescendants, sampleNode, readResultSampleRel);
+                getReadsAndWriteThemToFile(child, format, stBuilder, includeDescendants, sampleNode, readResultSampleRel, mode);
             }            
         }
     }

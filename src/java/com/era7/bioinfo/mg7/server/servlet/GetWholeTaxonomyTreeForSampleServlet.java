@@ -52,10 +52,10 @@ public class GetWholeTaxonomyTreeForSampleServlet extends BasicServletNeo4j {
             System.out.println(rqst.getMethod());
 
             SampleXML sampleXML = new SampleXML(rqst.getParameters().getChild(SampleXML.TAG_NAME));
+            String mode = rqst.getParameters().getChildText("mode");
 
-            //Map<String,String> configuration = EmbeddedGraphDatabase.loadConfigurations(CommonData.getMetagenomicaDataXML().getMLMConfigProps());
             MG7Manager manager = new MG7Manager(CommonData.getMetagenomicaDataXML().getResultsDBFolder());
-            
+
             NodeRetriever nodeRetriever = new NodeRetriever(mn);
 
             SampleNode sampleNode = new SampleNode(manager.getSampleNameIndex().get(SampleNode.SAMPLE_NAME_INDEX, sampleXML.getSampleName()).getSingle());
@@ -65,24 +65,40 @@ public class GetWholeTaxonomyTreeForSampleServlet extends BasicServletNeo4j {
             System.out.println("getting taxon frequencies relationships...");
             Iterator<Relationship> relIterator = sampleNode.getNode().getRelationships(new TaxonFrequencyResultsRel(null), Direction.INCOMING).iterator();
 
-            
+
             while (relIterator.hasNext()) {
 
                 TaxonFrequencyResultsRel taxonFreqRel = new TaxonFrequencyResultsRel(relIterator.next());
                 NCBITaxonNode currentNode = new NCBITaxonNode(taxonFreqRel.getRelationship().getStartNode());
 
-                //-----------creating graphml node------------------
+                if (mode.equals("direct")) {
+                    if (taxonFreqRel.getAbsoluteValue() > 0) {
+                        
+                        //-----------creating graphml node------------------
 
-                NodeXML currentNodeXML = createNodeXML(currentNode.getScientificName(),
-                        currentNode.getTaxId(),
-                        "" + taxonFreqRel.getAbsoluteValue(),
-                        "" + taxonFreqRel.getAccumulatedAbsoluteValue());
+                        NodeXML currentNodeXML = createNodeXML(currentNode.getScientificName(),
+                                currentNode.getTaxId(),
+                                "" + taxonFreqRel.getAbsoluteValue(),
+                                "" + taxonFreqRel.getAccumulatedAbsoluteValue());
 
-                //currentNodeXML.setId(currentNode.getTaxId());
-                
-                //System.out.println("Tree: " + currentNode.getScientificName());
+                        taxonMap.put(currentNode.getTaxId(), currentNodeXML);
+                        
+                    }
+                } else if (mode.equals("lca")) {
+                    if (taxonFreqRel.getLCAAbsoluteValue() > 0) {
+                        
+                        //-----------creating graphml node------------------
 
-                taxonMap.put(currentNode.getTaxId(), currentNodeXML);
+                        NodeXML currentNodeXML = createNodeXML(currentNode.getScientificName(),
+                                currentNode.getTaxId(),
+                                "" + taxonFreqRel.getLCAAbsoluteValue(),
+                                "" + taxonFreqRel.getLCAAccumulatedAbsoluteValue());
+
+                        taxonMap.put(currentNode.getTaxId(), currentNodeXML);
+                    }
+                }
+
+
 
             }
 
@@ -91,13 +107,13 @@ public class GetWholeTaxonomyTreeForSampleServlet extends BasicServletNeo4j {
             GraphXML graph = new GraphXML();
             graph.setDefaultEdgeType(GraphXML.DIRECTED_EDGE_TYPE);
             graph.setId("Taxonomy graph");
-            
+
             //-----first we create and add the root node (so that it gets in first place)---
             NCBITaxonNode rootNode = nodeRetriever.getNCBITaxonByTaxId("1");
             NodeXML rootNodeXML = createNodeXML(rootNode.getScientificName(),
-                        rootNode.getTaxId(),
-                        "-1",
-                        "-1");
+                    rootNode.getTaxId(),
+                    "-1",
+                    "-1");
             graph.addNode(rootNodeXML);
             //--------------------------------------------
 
@@ -125,7 +141,6 @@ public class GetWholeTaxonomyTreeForSampleServlet extends BasicServletNeo4j {
 
     }
 
-   
     private void getAncestors(NCBITaxonNode currentNode,
             GraphXML graph,
             HashMap<String, NodeXML> taxonMap,
@@ -141,7 +156,7 @@ public class GetWholeTaxonomyTreeForSampleServlet extends BasicServletNeo4j {
                         currentNodeTaxId,
                         "-1",
                         "-1");
-            }           
+            }
 
             nodesIncludedInGraph.add(currentNodeTaxId);
 
@@ -154,11 +169,11 @@ public class GetWholeTaxonomyTreeForSampleServlet extends BasicServletNeo4j {
                 edgeXML.setSource(parentNode.getTaxId());
                 edgeXML.setTarget(currentNodeTaxId);
                 graph.addEdge(edgeXML);
-                
+
                 graph.addNode(nodeXML);
 
                 getAncestors(parentNode, graph, taxonMap, nodesIncludedInGraph);
-                
+
             }
 
         }
@@ -227,7 +242,7 @@ public class GetWholeTaxonomyTreeForSampleServlet extends BasicServletNeo4j {
         nodeXML.addData(taxIdData);
         nodeXML.addData(absoluteValueData);
         nodeXML.addData(accumulatedAbsoluteValueData);
-        
+
         nodeXML.setId(taxId);
 
         return nodeXML;
@@ -280,14 +295,14 @@ public class GetWholeTaxonomyTreeForSampleServlet extends BasicServletNeo4j {
     }
 
     @Override
-    protected String defineNeo4jDatabaseFolder() {  
+    protected String defineNeo4jDatabaseFolder() {
         String dbFolder = "";
         try {
             dbFolder = CommonData.getMetagenomicaDataXML().getResultsDBFolder();
         } catch (Exception ex) {
             Logger.getLogger(GetReadResultServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return dbFolder;   
+        return dbFolder;
     }
 
     @Override

@@ -12,6 +12,7 @@ import com.era7.bioinfo.mg7.server.RequestList;
 import com.era7.bioinfo.mg7.MG7Manager;
 import com.era7.bioinfo.mg7.nodes.ReadResultNode;
 import com.era7.bioinfo.mg7.nodes.SampleNode;
+import com.era7.bioinfo.mg7.relationships.ReadResultLCANcbiTaxonRel;
 import com.era7.bioinfo.mg7.relationships.ReadResultNcbiTaxonRel;
 import com.era7.bioinfo.mg7.relationships.ReadResultSampleRel;
 import com.era7.bioinfo.servletlibraryneo4j.servlet.BasicServletNeo4j;
@@ -55,7 +56,8 @@ public class GetSampleReadResultsForTaxonServlet  extends BasicServletNeo4j{
             ReadResultSampleRel readResultSampleRel = new ReadResultSampleRel(null);
             
             NCBITaxonomyNodeXML taxonXML = new NCBITaxonomyNodeXML(rqst.getParameters().getChild(NCBITaxonomyNodeXML.TAG_NAME)); 
-            SampleXML sampleXML = new SampleXML(rqst.getParameters().getChild(SampleXML.TAG_NAME));  
+            SampleXML sampleXML = new SampleXML(rqst.getParameters().getChild(SampleXML.TAG_NAME)); 
+            String mode = rqst.getParameters().getChildText("mode");
             
             NCBITaxonNode taxonNode = nodeRetriever.getNCBITaxonByTaxId(""+ taxonXML.getTaxId());
             
@@ -66,8 +68,14 @@ public class GetSampleReadResultsForTaxonServlet  extends BasicServletNeo4j{
             Iterator<Node> iterator = manager.getSampleNameIndex().get(SampleNode.SAMPLE_NAME_INDEX, sampleXML.getSampleName()).iterator();
             if(iterator.hasNext()){
                 
-                SampleNode sampleNode = new SampleNode(iterator.next());                
-                Iterator<Relationship> relIterator = taxonNode.getNode().getRelationships(new ReadResultNcbiTaxonRel(null), Direction.INCOMING).iterator();
+                SampleNode sampleNode = new SampleNode(iterator.next());            
+                
+                Iterator<Relationship> relIterator = null;
+                if(mode.equals("direct")){
+                    relIterator = taxonNode.getNode().getRelationships(new ReadResultNcbiTaxonRel(null), Direction.INCOMING).iterator();
+                }else if(mode.equals("lca")){
+                    relIterator = taxonNode.getNode().getRelationships(new ReadResultLCANcbiTaxonRel(null), Direction.INCOMING).iterator();
+                }                
                 
                 while(relIterator.hasNext() && readResultsCounter < MAX_READ_RESULTS){
                     

@@ -42,29 +42,45 @@ public class GetSampleTaxonomyResultsTableServlet extends BasicServletNeo4j {
 
             System.out.println(rqst.getMethod());
 
+            String mode = rqst.getParameters().getChildText("mode");
             SampleXML sampleXML = new SampleXML(rqst.getParameters().getChild(SampleXML.TAG_NAME));
 
             MG7Manager manager = new MG7Manager(CommonData.getMetagenomicaDataXML().getResultsDBFolder());
-            
+
             SampleNode sampleNode = new SampleNode(manager.getSampleNameIndex().get(SampleNode.SAMPLE_NAME_INDEX, sampleXML.getSampleName()).getSingle());
-            
+
             Iterator<Relationship> relIterator = sampleNode.getNode().getRelationships(new TaxonFrequencyResultsRel(null), Direction.INCOMING).iterator();
-            
+
             while (relIterator.hasNext()) {
 
                 TaxonFrequencyResultsRel taxonFreqRel = new TaxonFrequencyResultsRel(relIterator.next());
                 NCBITaxonNode currentNode = new NCBITaxonNode(taxonFreqRel.getRelationship().getStartNode());
-                
-                //System.out.println("Table: " + currentNode.getScientificName());
 
-                //-----------creating ncbi taxon xml node------------------
-                NCBITaxonomyNodeXML nodeXML = new NCBITaxonomyNodeXML();
-                nodeXML.setTaxId(Integer.parseInt(currentNode.getTaxId()));
-                nodeXML.setScientificName(currentNode.getScientificName());
-                nodeXML.setAbsoluteFrequency(taxonFreqRel.getAbsoluteValue());
-                nodeXML.setAccumulatedAbsoluteFrequency(taxonFreqRel.getAccumulatedAbsoluteValue());
+                if (mode.equals("direct")) {
+                    if (taxonFreqRel.getAbsoluteValue() > 0) {
+                        
+                        //-----------creating ncbi taxon xml node------------------
+                        NCBITaxonomyNodeXML nodeXML = new NCBITaxonomyNodeXML();
+                        nodeXML.setTaxId(Integer.parseInt(currentNode.getTaxId()));
+                        nodeXML.setScientificName(currentNode.getScientificName());
+                        nodeXML.setAbsoluteFrequency(taxonFreqRel.getAbsoluteValue());
+                        nodeXML.setAccumulatedAbsoluteFrequency(taxonFreqRel.getAccumulatedAbsoluteValue());
 
-                response.addChild(nodeXML);
+                        response.addChild(nodeXML);
+                    }
+                } else if (mode.equals("lca")) {
+                    if (taxonFreqRel.getLCAAbsoluteValue() > 0) {
+                        
+                        //-----------creating ncbi taxon xml node------------------
+                        NCBITaxonomyNodeXML nodeXML = new NCBITaxonomyNodeXML();
+                        nodeXML.setTaxId(Integer.parseInt(currentNode.getTaxId()));
+                        nodeXML.setScientificName(currentNode.getScientificName());
+                        nodeXML.setAbsoluteFrequency(taxonFreqRel.getLCAAbsoluteValue());
+                        nodeXML.setAccumulatedAbsoluteFrequency(taxonFreqRel.getLCAAccumulatedAbsoluteValue());
+                        
+                        response.addChild(nodeXML);
+                    }
+                }
             }
 
             response.setStatus(Response.SUCCESSFUL_RESPONSE);
@@ -76,8 +92,6 @@ public class GetSampleTaxonomyResultsTableServlet extends BasicServletNeo4j {
         return response;
 
     }
-
-   
 
     @Override
     protected void logSuccessfulOperation(Request rqst, Response rspns, Bio4jManager bm, BasicSession bs) {
@@ -126,14 +140,14 @@ public class GetSampleTaxonomyResultsTableServlet extends BasicServletNeo4j {
     }
 
     @Override
-    protected String defineNeo4jDatabaseFolder() {  
+    protected String defineNeo4jDatabaseFolder() {
         String dbFolder = "";
         try {
             dbFolder = CommonData.getMetagenomicaDataXML().getResultsDBFolder();
         } catch (Exception ex) {
             Logger.getLogger(GetReadResultServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return dbFolder;   
+        return dbFolder;
     }
 
     @Override
