@@ -49,7 +49,7 @@ public class GetSampleReadResultsForTaxonServlet  extends BasicServletNeo4j{
         
         if(rqst.getMethod().equals(RequestList.GET_SAMPLE_READ_RESULTS_FOR_TAXON_REQUEST)){             
             
-            MG7Manager manager = new MG7Manager(CommonData.getMetagenomicaDataXML().getResultsDBFolder());
+            MG7Manager manager = new MG7Manager(CommonData.getMetagenomicaDataXML().getResultsDBFolder(),false,true);
             
             NodeRetriever nodeRetriever = new NodeRetriever(mn);
             

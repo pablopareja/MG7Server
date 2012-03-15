@@ -45,7 +45,7 @@ public class GetSampleTaxonomyResultsTableServlet extends BasicServletNeo4j {
             String mode = rqst.getParameters().getChildText("mode");
             SampleXML sampleXML = new SampleXML(rqst.getParameters().getChild(SampleXML.TAG_NAME));
 
-            MG7Manager manager = new MG7Manager(CommonData.getMetagenomicaDataXML().getResultsDBFolder());
+            MG7Manager manager = new MG7Manager(CommonData.getMetagenomicaDataXML().getResultsDBFolder(),false,true);
 
             SampleNode sampleNode = new SampleNode(manager.getSampleNameIndex().get(SampleNode.SAMPLE_NAME_INDEX, sampleXML.getSampleName()).getSingle());
 

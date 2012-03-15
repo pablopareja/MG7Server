@@ -88,7 +88,7 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
                 NCBITaxonomyNodeXML taxonXML = new NCBITaxonomyNodeXML(myReq.getParameters().getChild(NCBITaxonomyNodeXML.TAG_NAME));
 
                 //Map<String,String> configuration = EmbeddedGraphDatabase.loadConfigurations(CommonData.getMetagenomicaDataXML().getMLMConfigProps());
-                MG7Manager manager = new MG7Manager(CommonData.getMetagenomicaDataXML().getResultsDBFolder());
+                MG7Manager manager = new MG7Manager(CommonData.getMetagenomicaDataXML().getResultsDBFolder(),false,true);
                 NodeRetriever nodeRetriever = new NodeRetriever(manager);
 
                 StringBuilder stBuilder = new StringBuilder();
@@ -112,19 +112,18 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
 
                     if (format.equals("xml")) {
                         stBuilder.append("</read_results>");
+                        response.setHeader("Content-Disposition", "attachment; filename=" + fileName + ".xml");
+                    }else{
+                        response.setHeader("Content-Disposition", "attachment; filename=" + fileName + ".fasta");
                     }
 
                     System.out.println("writing response");
 
                     response.setContentType("application/x-download");
-                    response.setHeader("Content-Disposition", "attachment; filename=" + fileName + ".xml");
-
-                    //System.out.println("goSlim = " + goSlim);
-
+                    
                     byte[] byteArray = stBuilder.toString().getBytes();
-
-                    out.write(byteArray);
                     response.setContentLength(byteArray.length);
+                    out.write(byteArray);
 
                     System.out.println("doneee!!");
 
@@ -145,7 +144,8 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
         } catch (Exception e) {
             Logger.getLogger(DownloadSampleReadResultsForTaxonServlet.class.getName()).log(Level.SEVERE, null, e);
         }
-
+        
+        out.flush();
         out.close();
 
     }

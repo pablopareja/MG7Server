@@ -36,7 +36,7 @@ public class GetReadResultServlet extends BasicServletNeo4j {
             
             ReadResultXML readResultXML = new ReadResultXML(rqst.getParameters().getChild(ReadResultXML.TAG_NAME));
 
-            MG7Manager manager = new MG7Manager(CommonData.getMetagenomicaDataXML().getResultsDBFolder());
+            MG7Manager manager = new MG7Manager(CommonData.getMetagenomicaDataXML().getResultsDBFolder(),false,true);
             
             ReadResultNode readResultsNode = new ReadResultNode(manager.getReadResultReadIdIndex().get(ReadResultNode.READ_RESULT_READ_ID_INDEX, readResultXML.getReadId()).getSingle());
 

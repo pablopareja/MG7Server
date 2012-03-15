@@ -54,7 +54,7 @@ public class GetWholeTaxonomyTreeForSampleServlet extends BasicServletNeo4j {
             SampleXML sampleXML = new SampleXML(rqst.getParameters().getChild(SampleXML.TAG_NAME));
             String mode = rqst.getParameters().getChildText("mode");
 
-            MG7Manager manager = new MG7Manager(CommonData.getMetagenomicaDataXML().getResultsDBFolder());
+            MG7Manager manager = new MG7Manager(CommonData.getMetagenomicaDataXML().getResultsDBFolder(),false,true);
 
             NodeRetriever nodeRetriever = new NodeRetriever(mn);
 
