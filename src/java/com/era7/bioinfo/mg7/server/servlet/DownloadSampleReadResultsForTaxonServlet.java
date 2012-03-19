@@ -1,6 +1,18 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2011-2012  "MG7"
+ *
+ * This file is part of MG7
+ *
+ * MG7 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 package com.era7.bioinfo.mg7.server.servlet;
 
@@ -73,6 +85,7 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
             Request myReq = new Request(temp);
 
             String method = myReq.getMethod();
+            System.out.println("myReq = " + myReq);
 
 
             if (method.equals(RequestList.DOWNLOAD_SAMPLE_READ_RESULTS_FOR_TAXON_REQUEST)) {
@@ -110,20 +123,28 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
 
                     getReadsAndWriteThemToFile(taxonNode, format, stBuilder, includeDescendants, sampleNode, readResultSampleRel, mode);
 
-                    if (format.equals("xml")) {
-                        stBuilder.append("</read_results>");
-                        response.setHeader("Content-Disposition", "attachment; filename=" + fileName + ".xml");
-                    }else{
-                        response.setHeader("Content-Disposition", "attachment; filename=" + fileName + ".fasta");
-                    }
-
                     System.out.println("writing response");
-
                     response.setContentType("application/x-download");
                     
+                    String sufix = "NoDesc";
+                    if(includeDescendants){
+                        sufix = "WithDesc";
+                    }
+                    
+                    if (format.equals("xml")) {
+                        stBuilder.append("</read_results>");
+                        response.setHeader("Content-Disposition", "attachment; filename=" + sampleXML.getSampleName() + "_" + fileName + sufix + ".xml");
+                    }else{
+                        response.setHeader("Content-Disposition", "attachment; filename=" + sampleXML.getSampleName() + "_" + fileName + sufix +  ".fasta");
+                    }                    
+                    
                     byte[] byteArray = stBuilder.toString().getBytes();
-                    response.setContentLength(byteArray.length);
+                    
+                    System.out.println("byteArray length: " + byteArray.length);
+                    
                     out.write(byteArray);
+                    
+                    response.setContentLength(byteArray.length);                    
 
                     System.out.println("doneee!!");
 
@@ -157,6 +178,8 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
             SampleNode sampleNode,
             ReadResultSampleRel readResultSampleRel,
             String mode) {
+        
+        //System.out.println("stBuilder length antes: " + stBuilder.toString().length());
 
         Iterator<Relationship> relIterator = null;
         
@@ -170,9 +193,10 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
 
             ReadResultNode readResultsNode = new ReadResultNode(relIterator.next().getStartNode());
             SampleNode tempSampleNode = new SampleNode(readResultsNode.getNode().getSingleRelationship(readResultSampleRel, Direction.OUTGOING).getEndNode());
+            
 
             if (sampleNode.getName().equals(tempSampleNode.getName())) {
-
+                
                 if (format.equals("xml")) {
                     
                     ReadResultXML readResultXML = new ReadResultXML();
@@ -198,7 +222,7 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
                             
                             "\n" + 
                             FastaUtil.formatSequenceWithFastaFormat(readResultsNode.getQuerySequence(), 70) 
-                            + "\n"));
+                            ));
 
                 }
             }
@@ -210,5 +234,6 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
                 getReadsAndWriteThemToFile(child, format, stBuilder, includeDescendants, sampleNode, readResultSampleRel, mode);
             }            
         }
+        
     }
 }
