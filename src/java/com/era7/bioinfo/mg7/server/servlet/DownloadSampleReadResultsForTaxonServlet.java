@@ -27,8 +27,8 @@ import com.era7.bioinfo.mg7.relationships.ReadResultSampleRel;
 import com.era7.bioinfo.mg7.server.CommonData;
 import com.era7.bioinfo.mg7.server.RequestList;
 import com.era7.lib.bioinfo.bioinfoutil.fasta.FastaUtil;
-import com.era7.lib.bioinfoxml.metagenomics.ReadResultXML;
-import com.era7.lib.bioinfoxml.metagenomics.SampleXML;
+import com.era7.lib.bioinfoxml.mg7.ReadResultXML;
+import com.era7.lib.bioinfoxml.mg7.SampleXML;
 import com.era7.lib.bioinfoxml.ncbi.NCBITaxonomyNodeXML;
 import com.era7.lib.communication.xml.Request;
 import com.era7.lib.communication.xml.Response;
@@ -101,7 +101,7 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
                 NCBITaxonomyNodeXML taxonXML = new NCBITaxonomyNodeXML(myReq.getParameters().getChild(NCBITaxonomyNodeXML.TAG_NAME));
 
                 //Map<String,String> configuration = EmbeddedGraphDatabase.loadConfigurations(CommonData.getMetagenomicaDataXML().getMLMConfigProps());
-                MG7Manager manager = new MG7Manager(CommonData.getMetagenomicaDataXML().getResultsDBFolder(),false,true);
+                MG7Manager manager = new MG7Manager(CommonData.getMG7DataXML().getResultsDBFolder(),false,true);
                 NodeRetriever nodeRetriever = new NodeRetriever(manager);
 
                 StringBuilder stBuilder = new StringBuilder();
@@ -201,15 +201,8 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
                     
                     ReadResultXML readResultXML = new ReadResultXML();
                     readResultXML.setReadId(readResultsNode.getReadId());
-                    readResultXML.setIdentity(readResultsNode.getIdentity());
                     readResultXML.setQueryLength(readResultsNode.getQueryLength());
-                    readResultXML.setEvalue(readResultsNode.getEvalue());
-                    readResultXML.setGiId(readResultsNode.getGiId());
-                    readResultXML.setHitLength(readResultsNode.getHitLength());
-                    readResultXML.setAlignmentLength(readResultsNode.getAlignmentLength());
-                    readResultXML.setMidline(readResultsNode.getMidline());
-                    readResultXML.setQuerySequence(readResultsNode.getQuerySequence());
-                    readResultXML.setHitSequence(readResultsNode.getHitSequence());
+                    readResultXML.setSequence(readResultsNode.getReadSequence());                   
 
                     stBuilder.append((readResultXML.toString() + "\n"));
 
@@ -218,10 +211,10 @@ public class DownloadSampleReadResultsForTaxonServlet extends HttpServlet {
                     stBuilder.append((">" + sampleNode.getName() + "|" +
                             readResultsNode.getReadId() + "|" +
                             taxonNode.getTaxId() + "|" +
-                            readResultsNode.getQuerySequence().length() + "|" +
+                            readResultsNode.getReadSequence().length() + "|" +
                             
                             "\n" + 
-                            FastaUtil.formatSequenceWithFastaFormat(readResultsNode.getQuerySequence(), 70) 
+                            FastaUtil.formatSequenceWithFastaFormat(readResultsNode.getReadSequence(), 70) 
                             ));
 
                 }

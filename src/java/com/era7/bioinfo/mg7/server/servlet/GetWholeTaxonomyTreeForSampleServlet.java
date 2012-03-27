@@ -31,7 +31,7 @@ import com.era7.lib.bioinfoxml.graphml.GraphXML;
 import com.era7.lib.bioinfoxml.graphml.GraphmlXML;
 import com.era7.lib.bioinfoxml.graphml.KeyXML;
 import com.era7.lib.bioinfoxml.graphml.NodeXML;
-import com.era7.lib.bioinfoxml.metagenomics.SampleXML;
+import com.era7.lib.bioinfoxml.mg7.SampleXML;
 import com.era7.lib.communication.model.BasicSession;
 import com.era7.lib.communication.xml.Request;
 import com.era7.lib.communication.xml.Response;
@@ -66,7 +66,7 @@ public class GetWholeTaxonomyTreeForSampleServlet extends BasicServletNeo4j {
             SampleXML sampleXML = new SampleXML(rqst.getParameters().getChild(SampleXML.TAG_NAME));
             String mode = rqst.getParameters().getChildText("mode");
 
-            MG7Manager manager = new MG7Manager(CommonData.getMetagenomicaDataXML().getResultsDBFolder(),false,true);
+            MG7Manager manager = new MG7Manager(CommonData.getMG7DataXML().getResultsDBFolder(),false,true);
 
             NodeRetriever nodeRetriever = new NodeRetriever(mn);
 
@@ -310,7 +310,7 @@ public class GetWholeTaxonomyTreeForSampleServlet extends BasicServletNeo4j {
     protected String defineNeo4jDatabaseFolder() {
         String dbFolder = "";
         try {
-            dbFolder = CommonData.getMetagenomicaDataXML().getResultsDBFolder();
+            dbFolder = CommonData.getMG7DataXML().getResultsDBFolder();
         } catch (Exception ex) {
             Logger.getLogger(GetReadResultServlet.class.getName()).log(Level.SEVERE, null, ex);
         }

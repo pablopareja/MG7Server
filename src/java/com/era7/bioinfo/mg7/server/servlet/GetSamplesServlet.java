@@ -22,7 +22,7 @@ import com.era7.bioinfo.mg7.server.RequestList;
 import com.era7.bioinfo.mg7.nodes.SampleNode;
 import com.era7.bioinfo.mg7.relationships.SamplesRel;
 import com.era7.bioinfo.servletlibraryneo4j.servlet.BasicServletNeo4j;
-import com.era7.lib.bioinfoxml.metagenomics.SampleXML;
+import com.era7.lib.bioinfoxml.mg7.SampleXML;
 import com.era7.lib.communication.model.BasicSession;
 import com.era7.lib.communication.xml.Request;
 import com.era7.lib.communication.xml.Response;
@@ -99,7 +99,7 @@ public class GetSamplesServlet extends BasicServletNeo4j{
     protected String defineNeo4jDatabaseFolder() {  
         String dbFolder = "";
         try {
-            dbFolder = CommonData.getMetagenomicaDataXML().getResultsDBFolder();
+            dbFolder = CommonData.getMG7DataXML().getResultsDBFolder();
         } catch (Exception ex) {
             Logger.getLogger(GetSamplesServlet.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -24,7 +24,7 @@ import com.era7.bioinfo.mg7.relationships.TaxonFrequencyResultsRel;
 import com.era7.bioinfo.mg7.server.CommonData;
 import com.era7.bioinfo.mg7.server.RequestList;
 import com.era7.bioinfo.servletlibraryneo4j.servlet.BasicServletNeo4j;
-import com.era7.lib.bioinfoxml.metagenomics.SampleXML;
+import com.era7.lib.bioinfoxml.mg7.SampleXML;
 import com.era7.lib.bioinfoxml.ncbi.NCBITaxonomyNodeXML;
 import com.era7.lib.communication.model.BasicSession;
 import com.era7.lib.communication.xml.Request;
@@ -57,7 +57,7 @@ public class GetSampleTaxonomyResultsTableServlet extends BasicServletNeo4j {
             String mode = rqst.getParameters().getChildText("mode");
             SampleXML sampleXML = new SampleXML(rqst.getParameters().getChild(SampleXML.TAG_NAME));
 
-            MG7Manager manager = new MG7Manager(CommonData.getMetagenomicaDataXML().getResultsDBFolder(),false,true);
+            MG7Manager manager = new MG7Manager(CommonData.getMG7DataXML().getResultsDBFolder(),false,true);
 
             SampleNode sampleNode = new SampleNode(manager.getSampleNameIndex().get(SampleNode.SAMPLE_NAME_INDEX, sampleXML.getSampleName()).getSingle());
 
@@ -155,7 +155,7 @@ public class GetSampleTaxonomyResultsTableServlet extends BasicServletNeo4j {
     protected String defineNeo4jDatabaseFolder() {
         String dbFolder = "";
         try {
-            dbFolder = CommonData.getMetagenomicaDataXML().getResultsDBFolder();
+            dbFolder = CommonData.getMG7DataXML().getResultsDBFolder();
         } catch (Exception ex) {
             Logger.getLogger(GetReadResultServlet.class.getName()).log(Level.SEVERE, null, ex);
         }

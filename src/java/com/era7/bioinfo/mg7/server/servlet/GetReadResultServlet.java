@@ -20,16 +20,25 @@ import com.era7.bioinfo.bio4jmodel.util.Bio4jManager;
 import com.era7.bioinfo.mg7.server.CommonData;
 import com.era7.bioinfo.mg7.server.RequestList;
 import com.era7.bioinfo.mg7.MG7Manager;
+import com.era7.bioinfo.mg7.nodes.HitNode;
+import com.era7.bioinfo.mg7.nodes.HspNode;
 import com.era7.bioinfo.mg7.nodes.ReadResultNode;
+import com.era7.bioinfo.mg7.relationships.HitHspRel;
+import com.era7.bioinfo.mg7.relationships.HitReadResultRel;
 import com.era7.bioinfo.servletlibraryneo4j.servlet.BasicServletNeo4j;
-import com.era7.lib.bioinfoxml.metagenomics.ReadResultXML;
+import com.era7.lib.bioinfoxml.Hit;
+import com.era7.lib.bioinfoxml.Hsp;
+import com.era7.lib.bioinfoxml.mg7.ReadResultXML;
 import com.era7.lib.communication.model.BasicSession;
 import com.era7.lib.communication.xml.Request;
 import com.era7.lib.communication.xml.Response;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Relationship;
 
 /**
  *
@@ -45,25 +54,47 @@ public class GetReadResultServlet extends BasicServletNeo4j {
         Response response = new Response();
 
         if (rqst.getMethod().equals(RequestList.GET_READ_RESULT_REQUEST)) {
-            
+
             ReadResultXML readResultXML = new ReadResultXML(rqst.getParameters().getChild(ReadResultXML.TAG_NAME));
 
-            MG7Manager manager = new MG7Manager(CommonData.getMetagenomicaDataXML().getResultsDBFolder(),false,true);
-            
-            ReadResultNode readResultsNode = new ReadResultNode(manager.getReadResultReadIdIndex().get(ReadResultNode.READ_RESULT_READ_ID_INDEX, readResultXML.getReadId()).getSingle());
+            MG7Manager manager = new MG7Manager(CommonData.getMG7DataXML().getResultsDBFolder(), false, true);
 
+            ReadResultNode readResultsNode = new ReadResultNode(manager.getReadResultReadIdIndex().get(ReadResultNode.READ_RESULT_READ_ID_INDEX, readResultXML.getReadId()).getSingle());
+            
             readResultXML.detach();
+
+            Iterator<Relationship> hitIterator = readResultsNode.getNode().getRelationships(new HitReadResultRel(null), Direction.INCOMING).iterator();
+            while (hitIterator.hasNext()) {
+
+                HitNode hitNode = new HitNode(hitIterator.next().getStartNode());
+                Hit hitXML = new Hit();
+                hitXML.setHitDef(hitNode.getHitDef());
+                hitXML.setHitLen(hitNode.getHitLength());
+                hitXML.setHitNum(hitNode.getHitNum());
+                hitXML.setGiId(hitNode.getGiId());
+                hitXML.setHitAccession(hitNode.getHitAccession());
+
+                Iterator<Relationship> hspIterator = hitNode.getNode().getRelationships(new HitHspRel(null), Direction.OUTGOING).iterator();
+                while (hspIterator.hasNext()) {
+                    
+                    HspNode hspNode = new HspNode(hspIterator.next().getEndNode());
+                    Hsp hspXML = new Hsp();
+                    hspXML.setIdentity(String.valueOf(hspNode.getIdentity()));
+                    hspXML.setEvalue(hspNode.getEvalue());
+                    hspXML.setAlignLen(String.valueOf(hspNode.getAlignmentLength()));
+                    hspXML.setMidline(hspNode.getMidline());
+                    hspXML.setQSeq(hspNode.getQuerySequence());
+                    hspXML.setHSeq(hspNode.getHitSequence());
+                    
+                    hitXML.addHsp(hspXML);
+                }
+
+                readResultXML.addHit(hitXML);
+            }
             
             readResultXML.setReadId(readResultsNode.getReadId());
-            readResultXML.setIdentity(readResultsNode.getIdentity());
             readResultXML.setQueryLength(readResultsNode.getQueryLength());
-            readResultXML.setEvalue(readResultsNode.getEvalue());
-            readResultXML.setGiId(readResultsNode.getGiId());
-            readResultXML.setHitLength(readResultsNode.getHitLength());
-            readResultXML.setAlignmentLength(readResultsNode.getAlignmentLength());
-            readResultXML.setMidline(readResultsNode.getMidline());
-            readResultXML.setQuerySequence(readResultsNode.getQuerySequence());
-            readResultXML.setHitSequence(readResultsNode.getHitSequence());
+
 
             response.addChild(readResultXML);
 
@@ -126,7 +157,7 @@ public class GetReadResultServlet extends BasicServletNeo4j {
     protected String defineNeo4jDatabaseFolder() {
         String dbFolder = "";
         try {
-            dbFolder = CommonData.getMetagenomicaDataXML().getResultsDBFolder();
+            dbFolder = CommonData.getMG7DataXML().getResultsDBFolder();
         } catch (Exception ex) {
             Logger.getLogger(GetReadResultServlet.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -16,7 +16,7 @@
  */
 package com.era7.bioinfo.mg7.server;
 
-import com.era7.lib.bioinfoxml.MetagenomicsDataXML;
+import com.era7.lib.bioinfoxml.mg7.MG7DataXML;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,13 +29,13 @@ import java.io.IOException;
  */
 public class CommonData {
 
-    public static final String COMMON_DATA_FILE = "metagenomicaData.xml";    
+    public static final String COMMON_DATA_FILE = "mg7Data.xml";    
     
     
-    private static MetagenomicsDataXML metagenomicaDataXML = null;
+    private static MG7DataXML mg7DataXML = null;
 
-    public static MetagenomicsDataXML getMetagenomicaDataXML() throws FileNotFoundException, IOException, Exception {
-        if (metagenomicaDataXML == null) {
+    public static MG7DataXML getMG7DataXML() throws FileNotFoundException, IOException, Exception {
+        if (mg7DataXML == null) {
             
             File file = new File(COMMON_DATA_FILE);
 
@@ -47,9 +47,9 @@ public class CommonData {
             }
             reader.close();
 
-            metagenomicaDataXML = new MetagenomicsDataXML(stBuilder.toString());
+            mg7DataXML = new MG7DataXML(stBuilder.toString());
         }
 
-        return metagenomicaDataXML;
+        return mg7DataXML;
     }
 }

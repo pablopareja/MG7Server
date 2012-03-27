@@ -192,7 +192,7 @@ public class GetTaxonomyTreeServlet extends BasicServletNeo4j {
     protected String defineNeo4jDatabaseFolder() {  
         String dbFolder = "";
         try {
-            dbFolder = CommonData.getMetagenomicaDataXML().getResultsDBFolder();
+            dbFolder = CommonData.getMG7DataXML().getResultsDBFolder();
         } catch (Exception ex) {
             Logger.getLogger(GetReadResultServlet.class.getName()).log(Level.SEVERE, null, ex);
         }

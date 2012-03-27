@@ -28,8 +28,8 @@ import com.era7.bioinfo.mg7.relationships.ReadResultLCANcbiTaxonRel;
 import com.era7.bioinfo.mg7.relationships.ReadResultNcbiTaxonRel;
 import com.era7.bioinfo.mg7.relationships.ReadResultSampleRel;
 import com.era7.bioinfo.servletlibraryneo4j.servlet.BasicServletNeo4j;
-import com.era7.lib.bioinfoxml.metagenomics.ReadResultXML;
-import com.era7.lib.bioinfoxml.metagenomics.SampleXML;
+import com.era7.lib.bioinfoxml.mg7.ReadResultXML;
+import com.era7.lib.bioinfoxml.mg7.SampleXML;
 import com.era7.lib.bioinfoxml.ncbi.NCBITaxonomyNodeXML;
 import com.era7.lib.communication.model.BasicSession;
 import com.era7.lib.communication.xml.Request;
@@ -61,7 +61,7 @@ public class GetSampleReadResultsForTaxonServlet  extends BasicServletNeo4j{
         
         if(rqst.getMethod().equals(RequestList.GET_SAMPLE_READ_RESULTS_FOR_TAXON_REQUEST)){             
             
-            MG7Manager manager = new MG7Manager(CommonData.getMetagenomicaDataXML().getResultsDBFolder(),false,true);
+            MG7Manager manager = new MG7Manager(CommonData.getMG7DataXML().getResultsDBFolder(),false,true);
             
             NodeRetriever nodeRetriever = new NodeRetriever(mn);
             
@@ -98,7 +98,6 @@ public class GetSampleReadResultsForTaxonServlet  extends BasicServletNeo4j{
                     
                         ReadResultXML readResultXML = new ReadResultXML();
                         readResultXML.setReadId(readResultsNode.getReadId());
-                        readResultXML.setIdentity(readResultsNode.getIdentity());
                         readResultXML.setQueryLength(readResultsNode.getQueryLength());
                         
                         readResultsElement.addContent(readResultXML.asJDomElement());                        
@@ -154,7 +153,7 @@ public class GetSampleReadResultsForTaxonServlet  extends BasicServletNeo4j{
     protected String defineNeo4jDatabaseFolder() {  
         String dbFolder = "";
         try {
-            dbFolder = CommonData.getMetagenomicaDataXML().getResultsDBFolder();
+            dbFolder = CommonData.getMG7DataXML().getResultsDBFolder();
         } catch (Exception ex) {
             Logger.getLogger(GetReadResultServlet.class.getName()).log(Level.SEVERE, null, ex);
         }

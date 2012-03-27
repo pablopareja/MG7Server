@@ -40,7 +40,7 @@ public class MainListener extends ApplicationListener {
         System.out.println("Context initialized handler...");
         Bio4jManager manager;
         try {
-            manager = new Bio4jManager(CommonData.getMetagenomicaDataXML().getResultsDBFolder());
+            manager = new Bio4jManager(CommonData.getMG7DataXML().getResultsDBFolder());
             Node referenceNode = manager.getReferenceNode();
 
             if (referenceNode == null) {
@@ -60,7 +60,7 @@ public class MainListener extends ApplicationListener {
     protected void contextDestroyedHandler(ServletContext context) {
         try {
             System.out.println("Shutting down Neo4j....");
-            Bio4jManager manager = new Bio4jManager(CommonData.getMetagenomicaDataXML().getResultsDBFolder());
+            Bio4jManager manager = new Bio4jManager(CommonData.getMG7DataXML().getResultsDBFolder());
             //manager.deleteAll();
             manager.shutDown();
             System.out.println("Done with shutting down! :)");
