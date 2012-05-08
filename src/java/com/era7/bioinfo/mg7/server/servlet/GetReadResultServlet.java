@@ -85,6 +85,9 @@ public class GetReadResultServlet extends BasicServletNeo4j {
                     hspXML.setMidline(hspNode.getMidline());
                     hspXML.setQSeq(hspNode.getQuerySequence());
                     hspXML.setHSeq(hspNode.getHitSequence());
+                    hspXML.setNum(""+hspNode.getHspNum());
+                    
+                    //hspXML.setBitScore();
                     
                     hitXML.addHsp(hspXML);
                 }
